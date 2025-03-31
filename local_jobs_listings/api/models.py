@@ -49,7 +49,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
   objects = CustomUserManager()
 
   USERNAME_FIELD = 'email'
-  REQUIRED_FIELDS = ['name', 'role_id']
+  REQUIRED_FIELDS = ['name', 'role']
 
 #Job seeker model has a foreign key to the custom user id, age, nationality and skills attributes
 class JobSeeker(models.Model):
@@ -63,7 +63,7 @@ class Job(models.Model):
   job_title = models.CharField(max_length=255)
   location = models.CharField(max_length=255)
   job_description = models.TextField()
-  recruiter = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="jobs")
+  recruiter = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="jobs",  null=True, blank=True)
 
 #This model is to check the job application process for a certain job role
 class JobApplication(models.Model):
