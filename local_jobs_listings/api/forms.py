@@ -10,4 +10,4 @@ class CustomUserForm(ModelForm):
 class JobForm(ModelForm):
   class Meta:
     model = Job
-    fields = ['job_title', 'location', 'description']
+    fields = ['job_title', 'location', 'job_description']
