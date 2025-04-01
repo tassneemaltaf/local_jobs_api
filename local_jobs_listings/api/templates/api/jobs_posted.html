@@ -1,0 +1,13 @@
+{% extends "api/base.html" %}
+{% block title %}Jobs Posted{% endblock %}
+{% block content %}
+    <ul>
+    {% for job in jobs %}
+        {% if job.recruiter == user %}
+            <li>
+                {{ job.title}}
+            </li>
+        {% endif %}
+    </ul>
+    {% endfor %}
+{% endblock %}

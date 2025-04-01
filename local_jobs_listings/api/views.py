@@ -4,7 +4,7 @@ from django.views import generic
 from django.urls import reverse_lazy
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Job, JobApplication
+from .models import Job, JobApplication, CustomUser
 
 def register(request):
   if request.method == 'POST':
@@ -12,20 +12,33 @@ def register(request):
     if form.is_valid():
       user = form.save()
       login(request, user)
+      redirect('login')
   else:
     form = CustomUserForm()
   return render(request, "api/register.html", {'form': form})
 
 
-# class RegisterView(generic.CreateView):
-#   form_class = CustomUserForm
-#   success_url = reverse_lazy("login")
-#   template_name = "api/register.html"
+def jobs_posted(request):
+  user = request.user
+  if not user.is_authenticated:
+    return render(request, "api/jobs_posted.html", {'jobs': [], 'user': user})
+  
+  jobs = Job.objects.filter(recruiter=user)
+  return render(request, "api/jobs_posted.html", {'jobs': jobs, 'user': user})
+
+
+# def apply(request):
+
 
 class JobListView(generic.ListView):
   model = Job
   template_name = "api/job_list.html"
   context_object_name = 'jobs'
+  
+  def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    context['user'] = self.request.user
+    return context
 
 
 class JobCreateView(LoginRequiredMixin, generic.CreateView):

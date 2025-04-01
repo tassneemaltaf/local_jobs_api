@@ -12,7 +12,7 @@ body {
 }
 
 header {
-    background-color: #333;
+    background-color: #000080;
     padding: 10px;
     text-align: center;
 }
@@ -41,7 +41,7 @@ header nav ul li a {
 button {
     padding: 5px;
     width: 100px;
-    background-color: #333;
+    background-color: #000080;
     color: white;
 }
 
@@ -49,6 +49,6 @@ footer {
     text-align: center;
     margin-top: 50px;
     padding: 10px;
-    background-color: #333;
+    background-color: #000080;
     color: white;
 }

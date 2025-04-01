@@ -28,12 +28,10 @@ class CustomUserManager(UserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
   JOB_SEEKER = "job_seeker"
   RECRUITER = "recruiter"
-  ADMIN = "admin"
 
   ROLE_CHOICES = [
     (JOB_SEEKER, "Job Seeker"),
     (RECRUITER, 'Recruiter'),
-    (ADMIN, 'Admin'),
   ]
 
   name = models.CharField(max_length=255)
