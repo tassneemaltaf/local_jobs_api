@@ -4,10 +4,12 @@
 
 <h1>Jobs Applications</h1>
 <ul>
-    {% for job in job_apps %}
+    {% for job in jobs %}
     <li>
-        <h2>{{ job.job_id }}</h2>
-        <h5>Status: {{job.application_status }}</h5>
+        {% if job.is_applied == True %}
+            <h2>{{ job.job_title }}</h2>
+            <h5>Status:</h5>
+        {% endif %}
     </li>
     {% empty %}
         <p>No jobs yet</p>

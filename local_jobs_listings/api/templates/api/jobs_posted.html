@@ -3,11 +3,9 @@
 {% block content %}
     <ul>
     {% for job in jobs %}
-        {% if job.recruiter == user %}
-            <li>
-                {{ job.title}}
-            </li>
-        {% endif %}
-    </ul>
+        <li>
+            {{ job.title}}
+        </li>
     {% endfor %}
+    </ul>
 {% endblock %}

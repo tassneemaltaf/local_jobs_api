@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import CustomUserForm
 from django.views import generic
 from django.urls import reverse_lazy
@@ -19,16 +19,23 @@ def register(request):
 
 
 def jobs_posted(request):
-  user = request.user
-  if not user.is_authenticated:
-    return render(request, "api/jobs_posted.html", {'jobs': [], 'user': user})
-  
+  user = request.user 
   jobs = Job.objects.filter(recruiter=user)
   return render(request, "api/jobs_posted.html", {'jobs': jobs, 'user': user})
 
 
-# def apply(request):
+def apply(request, pk):
+  job = get_object_or_404(Job, pk=pk)
+  if request.user.is_authenticated and request.user.role == "job_seeker":
+    job.is_applied = True
+    job.save() 
+    return redirect('job_apps')
+  return redirect('home')
 
+class JobAppListView(generic.ListView):
+  model = Job
+  template_name="api/jobapplication_list.html"
+  context_object_name = 'jobs'
 
 class JobListView(generic.ListView):
   model = Job
@@ -48,8 +55,3 @@ class JobCreateView(LoginRequiredMixin, generic.CreateView):
   context_object_name = 'jobs'
   success_url = reverse_lazy('home')
 
-
-class JobApplicationListView(generic.ListView):
-  model = JobApplication
-  template_name = "api/jobapplication_list.html"
-  context_object_name = 'job_apps'
