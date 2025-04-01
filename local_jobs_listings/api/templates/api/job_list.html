@@ -1,0 +1,18 @@
+{% extends "api/base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<h1>Job Listings</h1>
+<button><a href="new">Post a Job</a></button>
+<ul>
+    {% for job in jobs %}
+    <li>
+        <h2>{{ job.job_title }}</h2>
+        <h5>Location: {{job.location }}</h5>
+        <p>Description: {{ job.job_description }}</p>
+    </li>
+    {% empty %}
+        <p>No jobs yet</p>
+    {% endfor %}
+</ul>
+{% endblock %}
