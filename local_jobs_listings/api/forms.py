@@ -1,13 +1,7 @@
-from django.forms import ModelForm
+from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser, Job
 
-class CustomUserForm(ModelForm):
+class CustomUserForm(UserCreationForm):
   class Meta:
     model = CustomUser
-    fields = ['name', 'email', 'role', 'password', 'profile_picture']
-
-
-class JobForm(ModelForm):
-  class Meta:
-    model = Job
-    fields = ['job_title', 'location', 'job_description']
+    fields = ['name', 'email', 'role', 'profile_picture']

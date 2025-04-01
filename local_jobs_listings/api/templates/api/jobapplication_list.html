@@ -1,0 +1,16 @@
+{% extends "api/base.html" %}
+{% block title %}Job Applications{% endblock %}
+{% block content %}
+
+<h1>Jobs Applications</h1>
+<ul>
+    {% for job in job_apps %}
+    <li>
+        <h2>{{ job.job_id }}</h2>
+        <h5>Status: {{job.application_status }}</h5>
+    </li>
+    {% empty %}
+        <p>No jobs yet</p>
+    {% endfor %}
+</ul>
+{% endblock %}

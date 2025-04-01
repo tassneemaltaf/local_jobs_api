@@ -3,7 +3,7 @@ from django.contrib.auth.models import UserManager, AbstractBaseUser, Permission
 
 #Creating a Custom user model
 class CustomUserManager(UserManager):
-  def _create_user(self, email, password, **extra_fields):
+  def _create_user(self, email, password=None, **extra_fields):
     if not email:
       raise ValueError("You have not provided a valid e-mail address")
 
@@ -39,7 +39,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
   name = models.CharField(max_length=255)
   email = models.EmailField(unique=True)
   role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=JOB_SEEKER)
-  password = models.CharField(max_length=255)
   profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
 
   is_active = models.BooleanField(default=True)
@@ -63,6 +62,7 @@ class Job(models.Model):
   job_title = models.CharField(max_length=255)
   location = models.CharField(max_length=255)
   job_description = models.TextField()
+  is_applied = models.BooleanField(default=False)
   recruiter = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="jobs",  null=True, blank=True)
 
 #This model is to check the job application process for a certain job role
