@@ -43,7 +43,16 @@ button {
     width: 100px;
     background-color: #000080;
     color: white;
+    font-size: 18px;
 }
+
+button a {
+    display: inline-block; 
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+}
+
 
 footer {
     text-align: center;

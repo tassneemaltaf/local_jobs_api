@@ -11,7 +11,7 @@
             <h2>{{ job.job_title }}</h2>
             <h5>Location: {{job.location }}</h5>
             <p>Description: {{ job.job_description }}</p>
-            {% if user.is_authenticated and user.role == "job_seeker" %}
+            {% if user.is_authenticated and user.role == "job_seeker" and job.is_applied == False %}
                 <button><a href="{% url 'apply' job.pk %}">Apply</a></button>
             {% endif %}
         </li>
