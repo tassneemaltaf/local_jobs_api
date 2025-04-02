@@ -22,11 +22,11 @@ class JobTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    #This test will fail if we dont remove LoginRequiredMixin to test this
     def test_create_job(self):
         data = {"job_title": "Software Engineer", "location": "Eindhoven", "job_description": "Full time", "recruiter": self.user.id}
         url = reverse('job_create')
         response = self.client.post(url, data)
-        print(response.data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
