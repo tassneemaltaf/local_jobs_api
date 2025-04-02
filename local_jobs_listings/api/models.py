@@ -61,7 +61,11 @@ class Job(models.Model):
   location = models.CharField(max_length=255)
   job_description = models.TextField()
   is_applied = models.BooleanField(default=False)
-  recruiter = models.ForeignKey(CustomUser, models.CASCADE, related_name="recruiter", default=1)
+  recruiter = models.ForeignKey(
+    CustomUser,
+    on_delete=models.CASCADE,
+    related_name="jobs"
+  )
 
 #This model is to check the job application process for a certain job role
 class JobApplication(models.Model):

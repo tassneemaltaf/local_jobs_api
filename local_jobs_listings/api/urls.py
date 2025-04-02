@@ -1,7 +1,8 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
-from .views import JobListView, JobCreateView, JobAppListView, register, jobs_posted, apply
+from .views import JobListView, JobCreateView, JobAppListView, JobUpdateView, JobDeleteView
+from .views import register, jobs_posted, apply
 
 urlpatterns = [
     path('register/', register, name='register'),
@@ -13,4 +14,5 @@ urlpatterns = [
     path('new/', JobCreateView.as_view(), name='job_create'),
     path('job_apps/', JobAppListView.as_view(), name='job_apps'),
     path('apply/<int:pk>', apply, name='apply'),
+    path('<int:pk>/delete/', JobDeleteView.as_view(), name='job_delete'),
 ]

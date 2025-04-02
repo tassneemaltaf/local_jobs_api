@@ -19,9 +19,9 @@ def register(request):
 
 
 def jobs_posted(request):
-  user = request.user 
+  user = request.user
   jobs = Job.objects.filter(recruiter=user)
-  return render(request, "api/jobs_posted.html", {'jobs': jobs, 'user': user})
+  return render(request, "api/jobs_posted.html", {'jobs': jobs})
 
 
 def apply(request, pk):
@@ -32,6 +32,7 @@ def apply(request, pk):
     return redirect('job_apps')
   return redirect('home')
 
+#This List View is for all the jobs the applicant applied
 class JobAppListView(generic.ListView):
   model = Job
   template_name="api/jobapplication_list.html"
@@ -55,3 +56,11 @@ class JobCreateView(LoginRequiredMixin, generic.CreateView):
   context_object_name = 'jobs'
   success_url = reverse_lazy('home')
 
+  def form_valid(self, form):
+    form.instance.recruiter = self.request.user
+    return super().form_valid(form)
+
+
+class JobDeleteView(LoginRequiredMixin, generic.DeleteView):
+  model = Job
+  template_name = "api/job_delete.html"
