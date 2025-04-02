@@ -12,7 +12,7 @@ def register(request):
     if form.is_valid():
       user = form.save()
       login(request, user)
-      redirect('login')
+      return redirect('home')
   else:
     form = CustomUserForm()
   return render(request, "api/register.html", {'form': form})
@@ -60,7 +60,6 @@ class JobCreateView(LoginRequiredMixin, generic.CreateView):
     form.instance.recruiter = self.request.user
     return super().form_valid(form)
 
-
 class JobDeleteView(LoginRequiredMixin, generic.DeleteView):
   model = Job
-  template_name = "api/job_delete.html"
+  success_url = reverse_lazy('home')

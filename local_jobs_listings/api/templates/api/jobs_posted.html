@@ -5,7 +5,10 @@
     {% for job in jobs %}
         <li>
             {{ job.job_title }}
-            <button><a href=""></a></button>
+            <form action="{% url 'job_delete' job.pk %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Delete</button>
+            </form>
         </li>
     {% endfor %}
     </ul>
