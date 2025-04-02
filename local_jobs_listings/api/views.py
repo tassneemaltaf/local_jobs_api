@@ -6,6 +6,7 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Job, JobApplication, CustomUser
 
+#Register a user function based view, it uses the CustomUserForm I created on forms.py
 def register(request):
   if request.method == 'POST':
     form = CustomUserForm(request.POST)
@@ -17,13 +18,13 @@ def register(request):
     form = CustomUserForm()
   return render(request, "api/register.html", {'form': form})
 
-
+#This function based view is for the jobs posted by the recruiter
 def jobs_posted(request):
   user = request.user
   jobs = Job.objects.filter(recruiter=user)
   return render(request, "api/jobs_posted.html", {'jobs': jobs})
 
-
+#This view is for the apply button for the job applicant
 def apply(request, pk):
   job = get_object_or_404(Job, pk=pk)
   if request.user.is_authenticated and request.user.role == "job_seeker":
@@ -38,6 +39,7 @@ class JobAppListView(generic.ListView):
   template_name="api/jobapplication_list.html"
   context_object_name = 'jobs'
 
+#This view lists every job posted
 class JobListView(generic.ListView):
   model = Job
   template_name = "api/job_list.html"
@@ -48,7 +50,7 @@ class JobListView(generic.ListView):
     context['user'] = self.request.user
     return context
 
-
+#This view is for creating a new post, only logged in recruiters can use this view
 class JobCreateView(LoginRequiredMixin, generic.CreateView):
   model = Job
   fields = ['job_title', 'location', 'job_description']
@@ -60,6 +62,7 @@ class JobCreateView(LoginRequiredMixin, generic.CreateView):
     form.instance.recruiter = self.request.user
     return super().form_valid(form)
 
+#This view is to delete a post the logged recruiter created
 class JobDeleteView(LoginRequiredMixin, generic.DeleteView):
   model = Job
   success_url = reverse_lazy('home')
