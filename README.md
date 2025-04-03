@@ -2,6 +2,7 @@
 
 ## Overview
 The Local Jobs Listings API is a platform that helps unemployed individuals find local job opportunities while allowing recruiters to post job openings. 
+The project is live on: https://tassneemaltaf.pythonanywhere.com/ until June of 2025
 
 ## Objective
 Help unemployed individuals find local job opportunities.
