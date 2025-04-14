@@ -1,18 +1,21 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
-from .views import JobListView, JobCreateView, JobAppListView, JobDeleteView
-from .views import register, jobs_posted, apply
+from .views import JobListAPIView, JobDetailAPIView, RegisterAPIView, ApplyToJobAPI, MyApplicationsAPI, JobCreateAPI, MyJobPostsAPI, JobUpdateAPI, JobDeleteAPI
+from rest_framework.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
-    path('register/', register, name='register'),
-    path('login/', auth_views.LoginView.as_view(template_name='api/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
-    path('accounts/profile/', TemplateView.as_view(template_name='accounts/profile.html'), name='profile'),
-    path('jobs_posted/', jobs_posted, name='jobs_posted'),
-    path('', JobListView.as_view(), name='home'),
-    path('new/', JobCreateView.as_view(), name='job_create'),
-    path('job_apps/', JobAppListView.as_view(), name='job_apps'),
-    path('apply/<int:pk>', apply, name='apply'),
-    path('delete/<int:pk>/', JobDeleteView.as_view(), name='job_delete'),
+    path('register/', RegisterAPIView.as_view(), name='register'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    path('api/jobs/', JobListAPIView.as_view(), name='api_job_list'),
+    path('api/jobs/<int:pk>/', JobDetailAPIView.as_view(), name='api_job_detail'),
+    path('jobs/<int:pk>/apply/', ApplyToJobAPI.as_view(), name='apply-to-job'),
+    path('my-applications/', MyApplicationsAPI.as_view(), name='my-applications'),
+
+    path('jobs/create/', JobCreateAPI.as_view(), name='job-update'),
+    path('jobs/update/<int:pk>', JobUpdateAPI.as_view(), name='job-create'),
+    path('jobs/delete/<int:pk>', JobDeleteAPI.as_view(), name='job-create'),
+    path('my-jobs/', MyJobPostsAPI.as_view(), name='my-job-posts'),
 ]

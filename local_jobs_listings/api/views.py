@@ -1,68 +1,115 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import CustomUserForm
-from django.views import generic
-from django.urls import reverse_lazy
-from django.contrib.auth import login
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Job, JobApplication, CustomUser
+from rest_framework.views import APIView
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
+from rest_framework import status
+from .serializers import RegisterSerializer, JobSerializer
+from django.http import Http404
+from .models import Job, JobApplication
 
 #Register a user function based view, it uses the CustomUserForm I created on forms.py
-def register(request):
-  if request.method == 'POST':
-    form = CustomUserForm(request.POST)
-    if form.is_valid():
-      user = form.save()
-      login(request, user)
-      return redirect('home')
-  else:
-    form = CustomUserForm()
-  return render(request, "api/register.html", {'form': form})
-
-#This function based view is for the jobs posted by the recruiter
-def jobs_posted(request):
-  user = request.user
-  jobs = Job.objects.filter(recruiter=user)
-  return render(request, "api/jobs_posted.html", {'jobs': jobs})
-
-#This view is for the apply button for the job applicant
-def apply(request, pk):
-  job = get_object_or_404(Job, pk=pk)
-  if request.user.is_authenticated and request.user.role == "job_seeker":
-    job.is_applied = True
-    job.save() 
-    return redirect('job_apps')
-  return redirect('home')
+class RegisterAPIView(APIView):
+  def post(self, request):
+    serializer = RegisterSerializer(data=request.data)
+    if serializer.is_valid():
+      user = serializer.save()
+      return Response({"message": "User registered successfully."}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #This List View is for all the jobs the applicant applied
-class JobAppListView(generic.ListView):
-  model = Job
-  template_name="api/jobapplication_list.html"
-  context_object_name = 'jobs'
+class JobListAPIView(APIView):
+  def get(self, request):
+    jobs = Job.objects.all()
+    serializer = JobSerializer(jobs, many=True)
+    return Response(serializer.data)
 
-#This view lists every job posted
-class JobListView(generic.ListView):
-  model = Job
-  template_name = "api/job_list.html"
-  context_object_name = 'jobs'
+# Detail view for a single job
+class JobDetailAPIView(APIView):
+  def get_object(self, pk):
+    try:
+      return Job.objects.get(pk=pk)
+    except Job.DoesNotExist:
+      raise Http404
+
+  def get(self, request, pk):
+    job = self.get_object(pk)
+    serializer = JobSerializer(job)
+    return Response(serializer.data)
+
+#Applying for a job
+class ApplyToJobAPI(APIView):
+  permission_classes = [IsAuthenticated]
+
+  def post(self, request, pk):
+    try:
+      job = Job.objects.get(pk=pk)
+
+      if request.user.role != "job_seeker":
+         return Response({"error": "Only job seekers can apply."}, status=403)
+
+      # Check if already applied
+      already_applied = JobApplication.objects.filter(job=job, applicant=request.user).exists()
+      if already_applied:
+        return Response({"detail": "You have already applied to this job."}, status=400)
+
+      JobApplication.objects.create(job=job, applicant=request.user)
+      return Response({"detail": "Application successful."}, status=201)
+
+    except Job.DoesNotExist:
+      return Response({"error": "Job not found."}, status=404)
+
+#To see my applications for each applicant
+class MyApplicationsAPI(APIView):
+  permission_classes = [IsAuthenticated]
+
+  def get(self, request):
+    applications = JobApplication.objects.filter(applicant=request.user)
+    jobs = [app.job for app in applications]
+    serialized_jobs = JobSerializer(jobs, many=True)
+    return Response(serialized_jobs.data)
+
+#Create a job only for recruiters
+class JobCreateAPI(CreateAPIView):
+    serializer_class = JobSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        if self.request.user.role != "recruiter":
+            raise PermissionDenied("Only recruiters can create job posts.")
+        serializer.save(recruiter=self.request.user)
+
+#Check jobs I created, only for recruiters.
+class MyJobPostsAPI(ListAPIView):
+  serializer_class = JobSerializer
+  permission_classes = [IsAuthenticated]
+
+  def get_queryset(self):
+    if self.request.user.role != "recruiter":
+      return Job.objects.none()  
+    return Job.objects.filter(recruiter=self.request.user)
   
-  def get_context_data(self, **kwargs):
-    context = super().get_context_data(**kwargs)
-    context['user'] = self.request.user
-    return context
+class JobUpdateAPI(UpdateAPIView):
+  serializer_class = JobSerializer
+  permission_classes = [IsAuthenticated]
 
-#This view is for creating a new post, only logged in recruiters can use this view
-class JobCreateView(LoginRequiredMixin, generic.CreateView):
-  model = Job
-  fields = ['job_title', 'location', 'job_description']
-  template_name = "api/job_create.html"
-  context_object_name = 'jobs'
-  success_url = reverse_lazy('home')
+  def get_queryset(self):
+    if self.request.user.role != "recruiter":
+      raise PermissionDenied("Only recruiters can update job posts.")
+    return Job.objects.filter(recruiter=self.request.user)
 
-  def form_valid(self, form):
-    form.instance.recruiter = self.request.user
-    return super().form_valid(form)
+  def perform_update(self, serializer):
+    job = self.get_object()
+    if job.recruiter != self.request.user:
+      raise PermissionDenied("You can only update your own job posts.")
+    serializer.save()
 
-#This view is to delete a post the logged recruiter created
-class JobDeleteView(LoginRequiredMixin, generic.DeleteView):
-  model = Job
-  success_url = reverse_lazy('home')
+class JobDeleteAPI(DestroyAPIView):
+  queryset = Job.objects.all()
+  permission_classes = [IsAuthenticated]
+
+  def get_object(self):
+    obj = super().get_object()
+    if obj.recruiter != self.request.user:
+      raise PermissionDenied("You can only delete your own job posts.")
+    return obj
