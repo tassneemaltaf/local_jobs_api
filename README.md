@@ -1,89 +1,81 @@
 # Local Jobs Listings API
 
 ## Overview
-The Local Jobs Listings API is a platform that helps unemployed individuals find local job opportunities while allowing recruiters to post job openings. 
-The project is live on: https://tassneemaltaf.pythonanywhere.com/ until June of 2025
+A Django REST API for job seekers and recruiters to manage job listings and applications. Built with Django Rest Framework (DRF) and JWT authentication.
 
-## Objective
-Help unemployed individuals find local job opportunities.
+🚀 Features
+User registration with role: job_seeker or recruiter
 
-## Features
+JWT-based login and authentication
 
-### Job Seeker Features:
-- View and search for job listings.
-- Apply for jobs.
+Recruiters can:
 
-### Job Recruiter Features:
-- Post job opportunities.
-- Delete job opportunities
+Post, update, delete job listings
 
+View all their job posts
 
-### Additional Features:
-- **Application Status**: Recruiters can mark applications as "Pending", "Reviewed", "Accepted", or "Rejected".
+Job seekers can:
 
-## Technologies Used
-- **Django**: Backend framework.
-- **Django REST Framework (DRF)**: For API development.
-- **SQLite**: Database for storing user and job data.
-- **JWT**: For user authentication.
+Apply to jobs
 
-## Getting Started
+View their applications
 
-### Prerequisites
-To run this project locally, you need:
-- Python 3.11
-- pip (Python package installer)
+Secure access to views based on user role
 
-### Installation
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/tassneemaltaf/local-jobs-api.git
-   cd local-jobs-api
-2. **Create and activate a virtual environment**:
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+🔐 Authentication
+JWT authentication via rest_framework_simplejwt
 
-3. **Install Dependencies**:
-   pip install -r requirements.txt
+Use /api/token/ to get access + refresh tokens
 
-4. **Run migrations**:
-   python manage.py migrate
+Include your token in requests using:
+Authorization: Bearer <access_token>
 
-5. **Create a Super User for Admin Access**:
-   python manage.py createsuperuser
+🔧 API Endpoints
 
-6. **Run the development server**:
-   python manage.py runserver
+Auth
+Method	Endpoint	Description
+POST	/register/	Register new user
+POST	/api/token/	Get JWT tokens
+POST	/api/token/refresh/	Refresh access token
 
-Your API should now be running at http://127.0.0.1:8000/.
+Jobs
+Method	Endpoint	Description
+GET	/api/jobs/	List all jobs
+GET	/api/jobs/<id>/	Get job details
+POST	/jobs/create/	Create a job post (recruiter)
+PUT	/jobs/update/<id>/	Update job post (recruiter)
+DELETE	/jobs/delete/<id>/	Delete job post (recruiter)
 
-**API Endpoints**
-- POST /register/
-  Register a new user
-  
-- POST /login/
-  Login user
-
-- GET /accounts/profile/
-  User profile
-  
-- GET /jobs_posted/
-  Get jobs posted (only for recruiter)
-  
- - GET /
-   Get Job listing
-
-- POST /new/
-  Create new job (Only for recruiters)
-
-- POST delete/{id}/
-  Delete a job (Only for recruiters)
-
-- GET /job_apps/
-  Get all the jobs the current logged in applicant applied for
-
-- POST /apply/{id}/
-  Apply for a job
-  
+Applications
+Method	Endpoint	Description
+POST	/jobs/<id>/apply/	Apply to a job (job seeker only)
+GET	/my-applications/	View all your applications
+GET	/my-jobs/	View jobs posted by you (recruiter)
 
 
+🛠️ Setup Instructions
+
+Clone the project
+git clone <your-repo-url>
+cd local_jobs_listings
+
+Create and activate a virtual environment
+python -m venv env
+source env/bin/activate  # on Windows: env\Scripts\activate
+
+Install dependencies
+pip install -r requirements.txt
+
+
+Run migrations
+python manage.py makemigrations
+python manage.py migrate
+
+Start the server
+python manage.py runserver
+
+
+📦 Dependencies
+Django
+Django REST Framework
+djangorestframework-simplejwt
