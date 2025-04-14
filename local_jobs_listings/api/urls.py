@@ -1,8 +1,6 @@
 from django.urls import path
-from django.contrib.auth import views as auth_views
-from django.views.generic import TemplateView
 from .views import JobListAPIView, JobDetailAPIView, RegisterAPIView, ApplyToJobAPI, MyApplicationsAPI, JobCreateAPI, MyJobPostsAPI, JobUpdateAPI, JobDeleteAPI
-from rest_framework.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('register/', RegisterAPIView.as_view(), name='register'),

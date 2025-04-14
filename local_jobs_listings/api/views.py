@@ -6,7 +6,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
 from .serializers import RegisterSerializer, JobSerializer
 from django.http import Http404
-from .models import Job, JobApplication
+from .models import Job, JobApplication, CustomUser
 
 #Register a user function based view, it uses the CustomUserForm I created on forms.py
 class RegisterAPIView(APIView):
@@ -46,14 +46,17 @@ class ApplyToJobAPI(APIView):
       job = Job.objects.get(pk=pk)
 
       if request.user.role != "job_seeker":
-         return Response({"error": "Only job seekers can apply."}, status=403)
-
-      # Check if already applied
-      already_applied = JobApplication.objects.filter(job=job, applicant=request.user).exists()
+        return Response({"error": "Only job seekers can apply."}, status=403)
+      already_applied = JobApplication.objects.filter(job_id=job, applicant_id=request.user.id).exists()
       if already_applied:
         return Response({"detail": "You have already applied to this job."}, status=400)
 
-      JobApplication.objects.create(job=job, applicant=request.user)
+      JobApplication.objects.create(
+        job_id=job,
+        applicant_id=request.user.id,
+        application_status=JobApplication.APPLIED
+      )
+
       return Response({"detail": "Application successful."}, status=201)
 
     except Job.DoesNotExist:
@@ -64,7 +67,7 @@ class MyApplicationsAPI(APIView):
   permission_classes = [IsAuthenticated]
 
   def get(self, request):
-    applications = JobApplication.objects.filter(applicant=request.user)
+    applications = JobApplication.objects.filter(applicant_id=request.user.id)
     jobs = [app.job for app in applications]
     serialized_jobs = JobSerializer(jobs, many=True)
     return Response(serialized_jobs.data)
